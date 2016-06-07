@@ -10,7 +10,6 @@
 	
 <#macro script_custom>
 	<script src="/GRapp/resources/js/map.js"></script>
-	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJjR5v4RZQBNl1CJJitVFskGzNupL8GiA&callback=initMap" async defer></script>
 </#macro>
 <#macro page_header>
 	<#include "../static/header.ftl">
@@ -21,18 +20,18 @@
     <div class="container">
 
         <div class="row">
-
             <div class="col-md-3">
-                <div>
-					<form method="POST" enctype="multipart/form-data" action="/GRapp/staypoint">
-						<p>File to upload:</p>
+                <div class="caption-full">
+                    <h4><p>File to upload</p></h4>
+                    <form method="POST" enctype="multipart/form-data" action="/GRapp/process">
 						<p><input type="file" name="file" /></p>
-						<p><input type="submit" value="Upload" /></p>
+						<p><button type="submit"  class="btn btn-info" >Request</button><p>
 					</form>
-				</div>
+                </div>
             </div>
 
             <div class="col-md-9">
+            	<!-- test map -->
 				<div id="map" style="height:650px;">
 				
 				</div>
