@@ -9,7 +9,7 @@ import java.util.List;
 import hedspi.tienlv.grapp.model.GPSPoint;
 import hedspi.tienlv.grapp.utils.file.MyFile;
 
-public class GPSPointExtractor {
+public class GPSPointFileExtractor extends FileExtractor{
 	/**
 	 * return list of GPSPoint, extract from file
 	 *
@@ -86,6 +86,9 @@ public class GPSPointExtractor {
 			// continue with other line
 			while ((line = reader.readLine()) != null) {
 				items = Arrays.asList(line.split("\\s*,\\s*"));
+				if (items.size() != 4) {
+					break;
+				}
 				GPSPoint co = new GPSPoint(getID(items.get(0)), new Double(items.get(3)), new Double(items.get(2)),
 						items.get(1));
 				arr.add(co);
@@ -93,52 +96,4 @@ public class GPSPointExtractor {
 		}
 		return arr;
 	}
-
-	/**
-	 * file format <id>,<date time>,<latitude>,<longitude>
-	 *
-	 * @param filePath
-	 * @return
-	 * @throws IOException
-	 */
-	private List<GPSPoint> extractFromTxt2File(String filePath) throws Exception {
-		List<GPSPoint> arr = new ArrayList<GPSPoint>();
-		BufferedReader reader = MyFile.readFile(filePath);
-		if (reader == null) {
-			return arr;
-		}
-		String line;
-
-		line = reader.readLine();
-		if (line != null) {
-			List<String> items = Arrays.asList(line.split("\\s*,\\s*"));
-
-			// remove header
-			if (!items.get(0).equals("name")) {
-				GPSPoint co = new GPSPoint(getID(items.get(0)), new Double(items.get(3)), new Double(items.get(2)),
-						items.get(1));
-				arr.add(co);
-			}
-
-			// continue with other line
-			while ((line = reader.readLine()) != null) {
-				items = Arrays.asList(line.split("\\s*,\\s*"));
-				GPSPoint co = new GPSPoint(getID(items.get(0)), new Double(items.get(2)), new Double(items.get(3)),
-						items.get(1));
-				arr.add(co);
-			}
-		}
-		return arr;
-	}
-
-	private static int getID(String s) {
-		int a;
-		try {
-			a = Integer.parseInt(s);
-		} catch (Exception ex) {
-			a = 0;
-		}
-		return a;
-	}
-
 }

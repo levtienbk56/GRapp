@@ -3,44 +3,19 @@ package hedspi.tienlv.grapp.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StayPoint {
+import hedspi.tienlv.grapp.utils.DoubleHelper;
 
-	private int id;
+public class Staypoint extends GPSPoint {
+
 	private List<GPSPoint> arr; // list of point
-	private Coordinate avgCoordinate = new Coordinate(); // centroid
-	private String time;
 
-	public StayPoint() {
-		this.arr = new ArrayList<GPSPoint>(); 
+	public Staypoint() {
+		this.arr = new ArrayList<GPSPoint>();
 	}
 
-	public StayPoint(Coordinate avgCoordinate, String startTime) {
-		this.arr = new ArrayList<GPSPoint>(); 
-		this.avgCoordinate = avgCoordinate;
-		this.time = startTime;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public Coordinate getAvgCoordinate() {
-		return avgCoordinate;
-	}
-
-	public void setAvgCoordinate(Coordinate avgCoordinate) {
-		this.avgCoordinate = avgCoordinate;
-	}
-
-	public String getTime() {
-		return time;
-	}
-
-	public void setTime(String startTime) {
+	public Staypoint(Coordinate avgCoordinate, String startTime) {
+		this.arr = new ArrayList<GPSPoint>();
+		this.latlng = avgCoordinate;
 		this.time = startTime;
 	}
 
@@ -48,13 +23,13 @@ public class StayPoint {
 		if (arr.size() <= 0) {
 			return;
 		}
-		double lat = 0, lng = 0;
-		for (Coordinate p : arr) {
-			lat += p.getLat();
-			lng += p.getLng();
+		double lat = 0.0, lng = 0.0;
+		for (GPSPoint p : arr) {
+			lat += p.getLatlng().getLat();
+			lng += p.getLatlng().getLng();
 		}
-		avgCoordinate.setLat(GPSPoint.round(lat / arr.size(), 5));
-		avgCoordinate.setLng(GPSPoint.round(lng / arr.size(), 5));
+		this.latlng.setLat(DoubleHelper.round(lat / arr.size(), 5));
+		this.latlng.setLng(DoubleHelper.round(lng / arr.size(), 5));
 		setTime(arr.get(0).getTime());
 	}
 
@@ -74,7 +49,7 @@ public class StayPoint {
 		System.out.println("sp size:" + arr.size());
 
 		for (GPSPoint p : arr) {
-			System.out.println("(" + p.getLat() + ", " + p.getLng() + ", " + p.getTime() + ")");
+			System.out.println("(" + p.getLatlng().getLat() + ", " + p.getLatlng().getLng() + ", " + p.getTime() + ")");
 		}
 	}
 
@@ -84,7 +59,7 @@ public class StayPoint {
 
 	@Override
 	public String toString() {
-		return "avgCoordinate=" + avgCoordinate + ", time=" + time;
+		return "avgCoordinate=" + latlng + ", time=" + time;
 	}
 
 }

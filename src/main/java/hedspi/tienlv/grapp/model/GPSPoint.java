@@ -1,23 +1,33 @@
 package hedspi.tienlv.grapp.model;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 
-public class GPSPoint extends Coordinate {
-	private int id;
-	private String time;
+import hedspi.tienlv.grapp.utils.DoubleHelper;
+
+public class GPSPoint {
+	protected int id;
+	protected String time;
+	protected Coordinate latlng;
 
 	public GPSPoint() {
 		super();
+		this.latlng = new Coordinate();
 	}
 
 	public GPSPoint(int userId, double lat, double lng, String time) {
-		super(lat, lng);
 		this.id = userId;
 		this.time = time;
+		this.latlng = new Coordinate(lat, lng);
+	}
+
+	public Coordinate getLatlng() {
+		return latlng;
+	}
+
+	public void setLatlng(Coordinate latlng) {
+		this.latlng = latlng;
 	}
 
 	public int getId() {
@@ -86,32 +96,13 @@ public class GPSPoint extends Coordinate {
 
 		// get only 4 decimals (~0.8 meter)
 		// +-0.8m still equals
-		double lat1 = round(this.getLat(), 5);
-		double lng1 = round(this.getLng(), 5);
-		double lat2 = round(other.getLat(), 5);
-		double lng2 = round(other.getLng(), 5);
+		double lat1 = DoubleHelper.round(this.getLatlng().getLat(), 5);
+		double lng1 = DoubleHelper.round(this.getLatlng().getLng(), 5);
+		double lat2 = DoubleHelper.round(other.getLatlng().getLat(), 5);
+		double lng2 = DoubleHelper.round(other.getLatlng().getLng(), 5);
 		if (!(lat1 == lat2) || !(lng1 == lng2)) {
 			return false;
 		}
 		return true;
-	}
-
-	/**
-	 * round(11.11111,2) return 11.11
-	 *
-	 * @param value
-	 *            the number
-	 * @param places
-	 *            number decimal
-	 * @return a double number
-	 */
-	public static double round(double value, int places) {
-		if (places < 0) {
-			throw new IllegalArgumentException();
-		}
-
-		BigDecimal bd = new BigDecimal(value);
-		bd = bd.setScale(places, RoundingMode.HALF_UP);
-		return bd.doubleValue();
 	}
 }

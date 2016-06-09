@@ -59,6 +59,7 @@ public class MyFile {
 				file.createNewFile();
 			}
 
+			// append to file
 			FileWriter fw = new FileWriter(file.getAbsoluteFile(), true);
 			BufferedWriter bw = new BufferedWriter(fw);
 			bw.write(content);
@@ -67,6 +68,12 @@ public class MyFile {
 			ex.printStackTrace();
 			throw new Exception("error write file: " + pathFile);
 		}
+	}
+
+	public static void cleanFile(String pathFile) throws IOException {
+		FileWriter fileOut = new FileWriter("file.txt");
+		fileOut.write("");
+		fileOut.close();
 	}
 
 	public static String getTypeOfFile(String path) {
@@ -89,9 +96,8 @@ public class MyFile {
 	public static void createFolder(String name) throws Exception {
 		try {
 			File f = new File(name);
-			boolean success = false;
 			if (!f.exists()) {
-				success = f.mkdir();
+				f.mkdir();
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();

@@ -4,6 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.servlet.http.Cookie;
@@ -18,11 +19,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import hedspi.tienlv.grapp.function.staypoint.StayPointExtractor;
+import hedspi.tienlv.grapp.service.StaypointService;
+import hedspi.tienlv.grapp.function.staypoint.StaypointExtractor;
+import hedspi.tienlv.grapp.service.GeotagService;
 import hedspi.tienlv.grapp.model.GPSPoint;
-import hedspi.tienlv.grapp.model.StayPoint;
+import hedspi.tienlv.grapp.model.Sequence;
+import hedspi.tienlv.grapp.model.Staypoint;
+import hedspi.tienlv.grapp.model.StaypointTag;
 import hedspi.tienlv.grapp.utils.cookie.CookieHelper;
-import hedspi.tienlv.grapp.utils.model.GPSPointExtractor;
+import hedspi.tienlv.grapp.utils.model.GPSPointFileExtractor;
+import hedspi.tienlv.grapp.utils.model.StaypointFileExtractor;
+import hedspi.tienlv.grapp.utils.model.StaypointTagFileExtractor;
 
 @org.springframework.stereotype.Controller
 public class Controller {
@@ -37,6 +44,17 @@ public class Controller {
 		return "pages/staypoint";
 	}
 
+	/**
+	 * handle upload file
+	 * 
+	 * @param request
+	 *            cookie usable
+	 * @param response
+	 *            cookie usable
+	 * @param file
+	 *            upload file
+	 * @return redirect to /process page
+	 */
 	@RequestMapping(value = "/process", method = RequestMethod.POST)
 	public String handleUploadAndProcess(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam("file") MultipartFile file) {
@@ -53,11 +71,11 @@ public class Controller {
 		/*** file uploaded ***/
 		File mFile = new File(uploadRootPath + "/" + file.getOriginalFilename());
 
-		CookieHelper cookieHelper = new CookieHelper(request, response);
-		cookieHelper.addCookie("user_id", FilenameUtils.getBaseName(mFile.getName()));
-
 		if (!file.isEmpty()) {
 			try {
+				CookieHelper cookieHelper = new CookieHelper(request, response);
+				cookieHelper.addCookie("user_id", FilenameUtils.getBaseName(mFile.getName()));
+
 				BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(mFile));
 				FileCopyUtils.copy(file.getInputStream(), stream);
 				stream.close();
@@ -65,35 +83,80 @@ public class Controller {
 				e.printStackTrace();
 			}
 		}
-
 		return "redirect:/process";
 	}
 
+	/**
+	 * Ajax request, get staypoint
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping(value = "/staypoint", method = RequestMethod.POST)
-	public @ResponseBody List<StayPoint> getStaypoint(HttpServletRequest request, HttpServletResponse response) {
-		List<StayPoint> staypoints = new ArrayList<StayPoint>();
+	public @ResponseBody List<Staypoint> getStaypoint(HttpServletRequest request, HttpServletResponse response) {
+		List<Staypoint> staypoints = new ArrayList<Staypoint>();
 
 		CookieHelper ch = new CookieHelper(request, response);
 		Cookie cookie = ch.getCookie("user_id");
+		if (cookie == null) {
+			return staypoints;
+		}
 
 		/*** folder upload ***/
 		String uploadRootPath = request.getServletContext().getRealPath("upload");
 		File uploadRootDir = new File(uploadRootPath);
-		System.out.println("uploaded folder:" + uploadRootPath);
 		// Create directory if it not exists.
 		if (!uploadRootDir.exists()) {
 			uploadRootDir.mkdirs();
 		}
 
 		/*** file uploaded ***/
-		File mFile = new File(uploadRootPath + "/" + cookie.getValue() + ".txt");
+		File uFile = new File(uploadRootPath + "/" + cookie.getValue() + ".txt");
+		if (!uFile.exists() || uFile.isDirectory()) {
+			return staypoints;
+		}
 
-		System.out.println("path: " + mFile.getAbsolutePath());
+		/*** check if filename is not Integer type ***/
 		try {
-			/*** read file and load gps point data ***/
-			List<GPSPoint> points = new GPSPointExtractor().extractFromFile(mFile.getAbsolutePath());
+			Integer.parseInt(cookie.getValue());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return staypoints;
+		}
+
+		/*** save staypoint into file ***/
+		// folder staypoint
+		File spdir = new File(uploadRootPath + "/staypoint");
+		if (!spdir.exists()) {
+			spdir.mkdirs();
+		}
+		// file staypoint
+		File spFile = new File(spdir + "/" + cookie.getValue() + ".txt");
+		/***
+		 * if exist, read file and return client. else, calcute staypoint, then
+		 * write to file
+		 **/
+		if (spFile.exists()) {
+			StaypointFileExtractor extractor = new StaypointFileExtractor();
+			try {
+				staypoints = extractor.extractFromTxtFile(spFile.getAbsolutePath());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return staypoints;
+		}
+
+		try {
+			/*** read upload file and load gps point data ***/
+			List<GPSPoint> points = new GPSPointFileExtractor().extractFromFile(uFile.getAbsolutePath());
+
 			/*** extract staypoint ***/
-			staypoints = new StayPointExtractor(30, 1200).extractStayPoints(points);
+			StaypointExtractor spExtractor = new StaypointExtractor(30, 1200);
+			staypoints = spExtractor.extractStayPoints(points);
+			StaypointService spService = new StaypointService();
+			spService.writeFile(staypoints, spFile.getAbsolutePath());
+
 			System.out.println("Staypoint extract: " + staypoints.size());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -102,19 +165,102 @@ public class Controller {
 		return staypoints;
 	}
 
-	private List<StayPoint> sp(String path) {
-		List<StayPoint> staypoints = new ArrayList<StayPoint>();
+	@RequestMapping(value = "/geotag", method = RequestMethod.POST)
+	public @ResponseBody List<StaypointTag> getGeotag(HttpServletRequest request, HttpServletResponse response) {
+		List<StaypointTag> spTags = new LinkedList<StaypointTag>();
 
+		CookieHelper ch = new CookieHelper(request, response);
+		Cookie cookie = ch.getCookie("user_id");
+		if (cookie == null) {
+			return spTags;
+		}
+
+		/*** check if exist, just load data from file then return to client ***/
+		String uploadRootPath = request.getServletContext().getRealPath("upload");
+		File sptDir = new File(uploadRootPath + "/staypointTag");
+		if (!sptDir.exists()) {
+			sptDir.mkdirs();
+		}
+		File sptFile = new File(sptDir + "/" + cookie.getValue() + ".txt");
+		if (sptFile.exists()) {
+			// load and return
+			StaypointTagFileExtractor extractor = new StaypointTagFileExtractor();
+			try {
+				spTags = extractor.extractFromTxtFile(sptFile.getAbsolutePath());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return spTags;
+		}
+
+		/*** not exist, calcute and save to file, then return back client ***/
+		// folder staypoint
+		File spFile = new File(uploadRootPath + "/staypoint/" + cookie.getValue() + ".txt");
+		if (!spFile.exists()) {
+			return spTags;
+		}
+
+		StaypointFileExtractor extractor = new StaypointFileExtractor();
 		try {
-			/*** read file and load gps point data ***/
-			List<GPSPoint> points = new GPSPointExtractor().extractFromFile(path);
-			/*** extract staypoint ***/
-			staypoints = new StayPointExtractor(30, 1200).extractStayPoints(points);
-			System.out.println("Staypoint extract: " + staypoints.size());
+			List<Staypoint> staypoints = extractor.extractFromTxtFile(spFile.getAbsolutePath());
+			GeotagService geotagService = new GeotagService();
+			for (Staypoint sp : staypoints) {
+				StaypointTag spt = new StaypointTag();
+				spt.setId(sp.getId());
+				spt.setLatlng(sp.getLatlng());
+				spt.setTime(sp.getTime());
+
+				// geotag
+				List<String> tags = geotagService.getTags(sp.getLatlng());
+				spt.setTags(tags);
+				spTags.add(spt);
+			}
+			// write file
+			geotagService.writeToFile(spTags, sptFile.getAbsolutePath());
 		} catch (Exception e) {
 			e.printStackTrace();
+			return spTags;
 		}
-		return staypoints;
+
+		return spTags;
 	}
 
+	@RequestMapping(value = "/sequence", method = RequestMethod.POST)
+	public @ResponseBody List<Sequence> getSequence(HttpServletRequest request, HttpServletResponse response) {
+		List<Sequence> sequences = new ArrayList<Sequence>();
+
+		CookieHelper ch = new CookieHelper(request, response);
+		Cookie cookie = ch.getCookie("user_id");
+		if (cookie == null) {
+			return sequences;
+		}
+
+		String uploadRootPath = request.getServletContext().getRealPath("upload");
+		// folder staypoint
+		File spFile = new File(uploadRootPath + "/geotag/" + cookie.getValue() + ".txt");
+		if (!spFile.exists()) {
+			return sequences;
+		}
+
+		StaypointTagFileExtractor extractor = new StaypointTagFileExtractor();
+		try {
+			List<StaypointTag> spts = extractor.extractFromTxtFile(spFile.getAbsolutePath());
+			for (StaypointTag spt : spts) {
+				// TODO: tao sequence ~ date
+				String date = spt.getTime().split(" ")[0];
+				//
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return sequences;
+	}
+
+	@RequestMapping(value = "/sequence-pattern", method = RequestMethod.POST)
+	public @ResponseBody List<Staypoint> getSequencePattern(HttpServletRequest request, HttpServletResponse response) {
+
+		return null;
+	}
 }

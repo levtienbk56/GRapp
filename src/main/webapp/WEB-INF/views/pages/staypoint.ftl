@@ -10,6 +10,7 @@
 	
 <#macro script_custom>
 	<script src="/GRapp/resources/js/map.js"></script>
+	<script src="/GRapp/resources/js/process.js"></script>
 </#macro>
 <#macro page_header>
 	<#include "../static/header.ftl">
@@ -18,22 +19,82 @@
 <#macro page_content>
 	 <!-- Page Content -->
     <div class="container">
-
         <div class="row">
-            <div class="col-md-3">
-                <div class="caption-full">
-                    <h4><p>File to upload</p></h4>
-                    <form method="POST" enctype="multipart/form-data" action="/GRapp/process">
-						<p><input type="file" name="file" /></p>
-						<p><button type="submit"  class="btn btn-info" >Request</button><p>
-					</form>
-                </div>
-            </div>
-
-            <div class="col-md-9">
-            	<!-- test map -->
-				<div id="map" style="height:650px;">
+            <div class="col-md-10">
+				<div class="panel panel-primary" id="section1">
+				  	<div class="panel-heading">
+				    	<h3 class="panel-title"><b>Staypoint Extraction</b></h3>
+				  	</div>
+				  	<div class="panel-body">
+				    	<!-- test map -->
+						<div id="map" style="height:750px;"></div>
+				  	</div>
+				</div>
 				
+				<div class="panel panel-primary"  id="section2">
+				  	<div class="panel-heading">
+				    	<h3 class="panel-title"><b>Reverse Geocoding</b></h3>
+				  	</div>
+				  	
+				  	<div class="panel-body">
+						<table class="table" id="label-of-staypoint">
+						    <thead>
+						      <tr>
+						        <th class="col-lg-2 text-left">Time</th>
+						        <th class="col-lg-2 text-left">Coordinate</th>
+						        <th class="col-lg-8 text-left">labels</th>
+						      </tr>
+						    </thead>
+						    <tbody>
+						      <tr class="anchor"></tr>
+						    </tbody>
+						 </table>
+				  	</div>
+				</div>
+				
+				<div class="panel panel-primary"  id="section3">
+				  	<div class="panel-heading">
+				    	<h3 class="panel-title"><b>Sequence Creation</b></h3>
+				  	</div>
+				  	
+				  	<div class="panel-body">
+						<table class="table" id="sequence">
+						    <thead>
+						      <tr>
+						        <th class="col-lg-2 text-left">Date</th>
+						        <th class="col-lg-10 text-left">Sequence</th>
+						      </tr>
+						    </thead>
+						    <tbody>
+						        <tr class="anchor"></tr>
+						    </tbody>
+						 </table>
+				  	</div>
+				</div>
+				
+				<div class="panel panel-primary"  id="section4">
+				  	<div class="panel-heading">
+				    	<h3 class="panel-title"><b>Sequence Pattern Mining</b></h3>
+				  	</div>
+				  	
+				  	<div class="panel-body">
+						<table class="table" id="sequence-pattern">
+						    <thead>
+						      <tr>
+						        <th>Firstname</th>
+						        <th>Lastname</th>
+						        <th>Email</th>
+						      </tr>
+						    </thead>
+						    <tbody>
+						      <tr>
+						        <td>John</td>
+						        <td>Doe</td>
+						        <td>john@example.com</td>
+						      </tr>
+						    </tbody>
+						 </table>
+				  	</div>
 				</div>
 				
                 <div class="thumbnail">
@@ -113,11 +174,11 @@
                     </div>
 
                 </div>
-
+				
             </div>
 
         </div>
-
+		<!-- /.row -->
     </div>
     <!-- /.container -->
 </#macro>

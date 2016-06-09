@@ -10,6 +10,7 @@
 	
 <#macro script_custom>
 	<script src="/GRapp/resources/js/home.js"></script>
+	<script src="/GRapp/resources/js/map.js"></script>
 	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJjR5v4RZQBNl1CJJitVFskGzNupL8GiA&callback=initMap"
     async defer></script>
 </#macro>
@@ -33,10 +34,15 @@
             </div>
 
             <div class="col-md-9">
-            	<!-- test map -->
-				<div id="map" style="height:650px;">
+            	<div class="panel panel-default">
+				  	<div class="panel-heading">
+				    	<h3 class="panel-title">Map</h3>
+				  	</div>
+				  	<div class="panel-body">
+				    	<!-- test map -->
+						<div id="map" style="height:800px;"></div>
+				  	</div>
 				</div>
-
             </div>
 
         </div>
