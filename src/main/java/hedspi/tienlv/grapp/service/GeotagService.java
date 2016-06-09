@@ -1,5 +1,6 @@
 package hedspi.tienlv.grapp.service;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,6 +16,12 @@ import hedspi.tienlv.grapp.utils.file.MyFile;
 import hedspi.tienlv.grapp.utils.http.ClientRequest;
 
 public class GeotagService {
+	/**
+	 * request google api to retrive location's tags
+	 * 
+	 * @param point
+	 * @return
+	 */
 	public List<String> getTags(Coordinate point) {
 		List<String> tags = new ArrayList<String>();
 
@@ -49,10 +56,8 @@ public class GeotagService {
 	/**
 	 * request nearby place base on coordinate and radius
 	 *
-	 * @param point:
-	 *            gps coordinate point
-	 * @param radius:
-	 *            limit ranger
+	 * @param point
+	 * @param radius
 	 * @return list of results (Result object)
 	 */
 	private List<Result> requestNearbyPlace(Coordinate point, int radius) {
@@ -83,15 +88,25 @@ public class GeotagService {
 				+ radius + "&key=" + Constraint.API_KEY;
 	}
 
-	public void writeToFile(List<StaypointTag> spTags, String pathFile) throws Exception {
+	/**
+	 * 
+	 * @param spTags
+	 * @param pathFile
+	 * @throws Exception
+	 */
+	public void writeToFile(List<StaypointTag> spTags, File file) throws Exception {
 		String string = "id,date time,latitude,longtitude,tags\n";
-		MyFile.cleanFile(pathFile);
-		MyFile.writeToFile(pathFile, string);
+		MyFile.cleanFile(file);
+		MyFile.writeToFile(file, string);
 		for (StaypointTag sp : spTags) {
 			String str = sp.getId() + "," + sp.getTime() + "," + sp.getLatlng().getLat() + "," + sp.getLatlng().getLng()
 					+ "," + sp.getTagsIntegerToString() + "\n";
-			MyFile.writeToFile(pathFile, str);
+			MyFile.writeToFile(file, str);
 		}
 	}
 
+	// TODO: loadStaypointTagsFromFile
+	public List<StaypointTag> loadStaypointTagsFromFile(File file) {
+		return null;
+	}
 }

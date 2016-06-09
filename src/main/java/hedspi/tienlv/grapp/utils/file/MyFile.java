@@ -50,10 +50,8 @@ public class MyFile {
 	 * @param content
 	 *            string of content
 	 */
-	public static void writeToFile(String pathFile, String content) throws Exception {
+	public static void writeToFile(File file, String content) throws Exception {
 		try {
-			File file = new File(pathFile);
-
 			// if file doesnt exists, then create it
 			if (!file.exists()) {
 				file.createNewFile();
@@ -66,12 +64,11 @@ public class MyFile {
 			bw.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			throw new Exception("error write file: " + pathFile);
 		}
 	}
 
-	public static void cleanFile(String pathFile) throws IOException {
-		FileWriter fileOut = new FileWriter("file.txt");
+	public static void cleanFile(File file) throws IOException {
+		FileWriter fileOut = new FileWriter(file);
 		fileOut.write("");
 		fileOut.close();
 	}

@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import hedspi.tienlv.grapp.service.StaypointService;
 import hedspi.tienlv.grapp.function.staypoint.StaypointExtractor;
 import hedspi.tienlv.grapp.service.GeotagService;
+import hedspi.tienlv.grapp.service.MainService;
 import hedspi.tienlv.grapp.model.GPSPoint;
 import hedspi.tienlv.grapp.model.Sequence;
 import hedspi.tienlv.grapp.model.Staypoint;
@@ -73,12 +74,17 @@ public class Controller {
 
 		if (!file.isEmpty()) {
 			try {
+				String userID = FilenameUtils.getBaseName(mFile.getName());
 				CookieHelper cookieHelper = new CookieHelper(request, response);
-				cookieHelper.addCookie("user_id", FilenameUtils.getBaseName(mFile.getName()));
+				cookieHelper.addCookie("user_id", userID);
 
 				BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(mFile));
 				FileCopyUtils.copy(file.getInputStream(), stream);
 				stream.close();
+
+				// main process
+				MainService mainService = new MainService();
+				mainService.process(mFile, userID);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -140,7 +146,7 @@ public class Controller {
 		if (spFile.exists()) {
 			StaypointFileExtractor extractor = new StaypointFileExtractor();
 			try {
-				staypoints = extractor.extractFromTxtFile(spFile.getAbsolutePath());
+				staypoints = extractor.extractFromFile(spFile.getAbsolutePath());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -202,7 +208,7 @@ public class Controller {
 
 		StaypointFileExtractor extractor = new StaypointFileExtractor();
 		try {
-			List<Staypoint> staypoints = extractor.extractFromTxtFile(spFile.getAbsolutePath());
+			List<Staypoint> staypoints = extractor.extractFromFile(spFile.getAbsolutePath());
 			GeotagService geotagService = new GeotagService();
 			for (Staypoint sp : staypoints) {
 				StaypointTag spt = new StaypointTag();

@@ -1,9 +1,9 @@
 package hedspi.tienlv.grapp.model;
 
-public class SequencePattern extends Sequence {
+public class SequentialPattern extends Sequence {
 	private int sup;
 
-	public SequencePattern() {
+	public SequentialPattern() {
 
 	}
 

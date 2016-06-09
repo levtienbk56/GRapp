@@ -1,6 +1,10 @@
 package hedspi.tienlv.grapp.service;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import hedspi.tienlv.grapp.model.Coordinate;
@@ -9,25 +13,80 @@ import hedspi.tienlv.grapp.model.Staypoint;
 import hedspi.tienlv.grapp.utils.file.MyFile;
 
 public class StaypointService {
+	/**
+	 * file format <id>,<date time>,<longitude>,<latitude>
+	 *
+	 * @param filePath
+	 * @return
+	 * @throws IOException
+	 */
+	public List<Staypoint> extractFromFile(File file) throws Exception {
+		String filePath = file.getAbsolutePath();
+		List<Staypoint> arr = new ArrayList<Staypoint>();
+		BufferedReader reader = MyFile.readFile(filePath);
+		if (reader == null) {
+			return arr;
+		}
+		String line;
 
-	public void writeFile(List<Staypoint> staypoints, String pathFile) throws Exception {
+		// check first lind for header
+		line = reader.readLine();
+		if (line != null) {
+			List<String> items = Arrays.asList(line.split("\\s*,\\s*"));
+
+			// remove header
+			if (!items.get(0).equals("name") && !items.get(0).equals("id")) {
+				Staypoint sp = new Staypoint();
+				sp.setId(getID(items.get(0)));
+				sp.setTime(items.get(1));
+				sp.setLatlng(new Coordinate(new Double(items.get(2)), new Double(items.get(3))));
+				arr.add(sp);
+			}
+
+			// continue with other line
+			while ((line = reader.readLine()) != null) {
+				items = Arrays.asList(line.split("\\s*,\\s*"));
+				if (items.size() != 4) {
+					break;
+				}
+				Staypoint sp = new Staypoint();
+				sp.setId(getID(items.get(0)));
+				sp.setTime(items.get(1));
+				sp.setLatlng(new Coordinate(new Double(items.get(2)), new Double(items.get(3))));
+				arr.add(sp);
+			}
+		}
+		return arr;
+	}
+
+	static int getID(String s) {
+		int a;
+		try {
+			a = Integer.parseInt(s);
+		} catch (Exception ex) {
+			a = 0;
+		}
+		return a;
+	}
+
+	public void writeFile(List<Staypoint> staypoints, File file) throws Exception {
 		String string = "id,date time,latitude,longtitude\n";
-		MyFile.cleanFile(pathFile);
-		MyFile.writeToFile(pathFile, string);
+		MyFile.cleanFile(file);
+		MyFile.writeToFile(file, string);
 		for (Staypoint sp : staypoints) {
 			String str = sp.getId() + "," + sp.getTime() + "," + sp.getLatlng().getLat() + "," + sp.getLatlng().getLng()
 					+ "\n";
-			MyFile.writeToFile(pathFile, str);
+			MyFile.writeToFile(file, str);
 		}
 	}
 
 	/**
 	 *
-	 * @param arrLog
+	 * @param gpsPoints
 	 *            list of GPSPoint objects
 	 * @return list of StayPoint
 	 */
-	public List<Staypoint> extractStayPoints(List<GPSPoint> arrLog, double distThresh, double timeThresh) {
+	public List<Staypoint> extractStayPoints(List<GPSPoint> gpsPoints, double distThresh, double timeThresh) {
 		int i = 0, j, token, pointNum;
 		double dist;
 		long deltaTime;
@@ -35,20 +94,20 @@ public class StaypointService {
 
 		// list of stay point
 		List<Staypoint> SP = new ArrayList<Staypoint>();
-		if (arrLog.size() <= 0) {
+		if (gpsPoints.size() <= 0) {
 			return SP;
 		}
 
 		// insert one point at last array
-		arrLog.add(new GPSPoint(arrLog.get(0).getId(), 0.0, 0.0, "2999-01-01 00:00:00"));
-		pointNum = arrLog.size();
+		gpsPoints.add(new GPSPoint(gpsPoints.get(0).getId(), 0.0, 0.0, "2999-01-01 00:00:00"));
+		pointNum = gpsPoints.size();
 
 		while (i < pointNum - 1) {
-			pi = arrLog.get(i);
+			pi = gpsPoints.get(i);
 			j = i + 1;
 			token = 0;
 			while (j < pointNum) {
-				pj = arrLog.get(j);
+				pj = gpsPoints.get(j);
 				dist = Coordinate.distance(pi.getLatlng(), pj.getLatlng());
 
 				if (dist > distThresh) {
@@ -59,8 +118,8 @@ public class StaypointService {
 						Staypoint S = new Staypoint();
 						for (l = i; l < j; l++) {
 							// @see contains()
-							if (!S.getArr().contains(arrLog.get(l))) {
-								S.getArr().add(arrLog.get(l));
+							if (!S.getArr().contains(gpsPoints.get(l))) {
+								S.getArr().add(gpsPoints.get(l));
 							}
 						}
 						S.setTime(pi.getTime());
