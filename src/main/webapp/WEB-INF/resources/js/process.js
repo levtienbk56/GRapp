@@ -107,6 +107,7 @@ function requestGeotag() {
 						+ "</td>";
 				str += "<td>";
 				for (var i = 0; i < spt.tags.items.length; i++) {
+					// get string tag
 					tag = modulTypes.getType(spt.tags.items[i]);
 					str += "<span class='label label-success'>" + tag
 							+ "</span> ";

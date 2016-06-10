@@ -37,13 +37,13 @@
 				    	<h3 class="panel-title"><b>Reverse Geocoding</b></h3>
 				  	</div>
 				  	
-				  	<div class="panel-body">
+				  	<div class="panel-body tablescroll">
 						<table class="table" id="label-of-staypoint">
 						    <thead>
 						      <tr>
-						        <th class="col-lg-2 text-left">Time</th>
-						        <th class="col-lg-2 text-left">Coordinate</th>
-						        <th class="col-lg-8 text-left">labels</th>
+						        <th class=" text-left">Time</th>
+						        <th class=" text-left">Coordinate</th>
+						        <th class=" text-left">labels</th>
 						      </tr>
 						    </thead>
 						    <tbody>
@@ -58,7 +58,7 @@
 				    	<h3 class="panel-title"><b>Sequence Creation</b></h3>
 				  	</div>
 				  	
-				  	<div class="panel-body">
+				  	<div class="panel-body tablescroll">
 						<table class="table" id="sequence">
 						    <thead>
 						      <tr>
@@ -78,7 +78,7 @@
 				    	<h3 class="panel-title"><b>Sequence Pattern Mining</b></h3>
 				  	</div>
 				  	
-				  	<div class="panel-body">
+				  	<div class="panel-body tablescroll">
 						<table class="table" id="sequence-pattern">
 						    <thead>
 						      <tr>

@@ -4,7 +4,7 @@
 	margin-right: auto;
 }
 
-tbody {
-	overflow-y: scroll;
-	height: 600px;
+.tablescroll {
+	height: 500px;
+	overflow: auto;
 }
