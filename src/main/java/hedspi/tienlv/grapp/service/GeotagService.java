@@ -100,7 +100,7 @@ public class GeotagService {
 		MyFile.writeToFile(file, string);
 		for (StaypointTag sp : spTags) {
 			String str = sp.getId() + "," + sp.getTime() + "," + sp.getLatlng().getLat() + "," + sp.getLatlng().getLng()
-					+ "," + sp.getTagsIntegerToString() + "\n";
+					+ "," + sp.getTagsToString() + "\n";
 			MyFile.writeToFile(file, str);
 		}
 	}

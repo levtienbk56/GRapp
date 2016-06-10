@@ -29,12 +29,21 @@ public class Sequence {
 		this.itemsets = itemsets;
 	}
 
-	public List<List<Integer>> getItemsetsInteger() {
-		List<List<Integer>> list = new LinkedList<List<Integer>>();
+	public List<List<String>> getSequenceString() {
+		List<List<String>> list = new LinkedList<List<String>>();
 
 		for (Itemset is : itemsets) {
-			list.add(is.getItemsInteger());
+			list.add(is.getItemsString());
 		}
 		return list;
+	}
+
+	// length is total number of item, not itemset
+	public int getLength() {
+		int l = 0;
+		for (Itemset its : itemsets) {
+			l += its.getItems().size();
+		}
+		return l;
 	}
 }

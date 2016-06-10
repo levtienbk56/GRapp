@@ -50,6 +50,8 @@ public class GPSPointService {
 				arr.add(co);
 			}
 		}
+
+		System.out.println("POINT list size=" + arr.size());
 		return arr;
 	}
 

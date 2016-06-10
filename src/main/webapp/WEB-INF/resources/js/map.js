@@ -1,8 +1,11 @@
-var colors = [ '#ff0000', '#008000', '#4B0082', '#0000FF', '#FFA500' ];
-
-function getcolor(i) {
-	return colors[i % 5];
-}
+var modulColor=(function(){
+     var colors = [ '#ff0000', '#008000', '#4B0082', '#0000FF', '#FFA500' ];
+     return {
+            getColor:function(i) {
+                return colors[i % 5];
+            }
+      }
+}());
 
 var centerMap = {
 	lat : 21.006071,
@@ -71,7 +74,7 @@ function initMap() {
 				icon : {
 					path : google.maps.SymbolPath.CIRCLE,
 					scale : 3,
-					fillColor : getcolor(i),
+					fillColor : modulColor.getColor(i),
 					fillOpacity : 1,
 					strokeWeight : 0.8
 				}

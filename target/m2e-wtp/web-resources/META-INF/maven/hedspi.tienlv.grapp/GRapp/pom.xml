@@ -202,8 +202,11 @@
 			<artifactId>gson</artifactId>
 			<version>2.3.1</version>
 		</dependency>
-
-
+		<dependency>
+			<groupId>ca.pfv</groupId>
+			<artifactId>spmf</artifactId>
+			<version>0.96</version>
+		</dependency>
 	</dependencies>
 
 	<build>

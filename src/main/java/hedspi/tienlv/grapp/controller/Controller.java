@@ -19,18 +19,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import hedspi.tienlv.grapp.service.StaypointService;
-import hedspi.tienlv.grapp.function.staypoint.StaypointExtractor;
-import hedspi.tienlv.grapp.service.GeotagService;
-import hedspi.tienlv.grapp.service.MainService;
-import hedspi.tienlv.grapp.model.GPSPoint;
 import hedspi.tienlv.grapp.model.Sequence;
 import hedspi.tienlv.grapp.model.Staypoint;
 import hedspi.tienlv.grapp.model.StaypointTag;
+import hedspi.tienlv.grapp.service.GeotagService;
+import hedspi.tienlv.grapp.service.MainService;
+import hedspi.tienlv.grapp.service.StaypointService;
 import hedspi.tienlv.grapp.utils.cookie.CookieHelper;
-import hedspi.tienlv.grapp.utils.model.GPSPointFileExtractor;
-import hedspi.tienlv.grapp.utils.model.StaypointFileExtractor;
-import hedspi.tienlv.grapp.utils.model.StaypointTagFileExtractor;
 
 @org.springframework.stereotype.Controller
 public class Controller {
@@ -74,10 +69,12 @@ public class Controller {
 
 		if (!file.isEmpty()) {
 			try {
+				// save user id into Cookie
 				String userID = FilenameUtils.getBaseName(mFile.getName());
 				CookieHelper cookieHelper = new CookieHelper(request, response);
 				cookieHelper.addCookie("user_id", userID);
 
+				// save file to uplaod folder
 				BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(mFile));
 				FileCopyUtils.copy(file.getInputStream(), stream);
 				stream.close();
@@ -144,24 +141,13 @@ public class Controller {
 		 * write to file
 		 **/
 		if (spFile.exists()) {
-			StaypointFileExtractor extractor = new StaypointFileExtractor();
-			try {
-				staypoints = extractor.extractFromFile(spFile.getAbsolutePath());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 			return staypoints;
 		}
 
 		try {
 			/*** read upload file and load gps point data ***/
-			List<GPSPoint> points = new GPSPointFileExtractor().extractFromFile(uFile.getAbsolutePath());
 
 			/*** extract staypoint ***/
-			StaypointExtractor spExtractor = new StaypointExtractor(30, 1200);
-			staypoints = spExtractor.extractStayPoints(points);
-			StaypointService spService = new StaypointService();
-			spService.writeFile(staypoints, spFile.getAbsolutePath());
 
 			System.out.println("Staypoint extract: " + staypoints.size());
 		} catch (Exception e) {
@@ -190,12 +176,6 @@ public class Controller {
 		File sptFile = new File(sptDir + "/" + cookie.getValue() + ".txt");
 		if (sptFile.exists()) {
 			// load and return
-			StaypointTagFileExtractor extractor = new StaypointTagFileExtractor();
-			try {
-				spTags = extractor.extractFromTxtFile(sptFile.getAbsolutePath());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 			return spTags;
 		}
 
@@ -206,9 +186,9 @@ public class Controller {
 			return spTags;
 		}
 
-		StaypointFileExtractor extractor = new StaypointFileExtractor();
+		StaypointService spService = new StaypointService();
 		try {
-			List<Staypoint> staypoints = extractor.extractFromFile(spFile.getAbsolutePath());
+			List<Staypoint> staypoints = spService.extractFromFile(spFile);
 			GeotagService geotagService = new GeotagService();
 			for (Staypoint sp : staypoints) {
 				StaypointTag spt = new StaypointTag();
@@ -218,11 +198,11 @@ public class Controller {
 
 				// geotag
 				List<String> tags = geotagService.getTags(sp.getLatlng());
-				spt.setTags(tags);
-				spTags.add(spt);
+				// spt.setTags(tags);
+				// spTags.add(spt);
 			}
 			// write file
-			geotagService.writeToFile(spTags, sptFile.getAbsolutePath());
+			// geotagService.writeToFile(spTags, sptFile.getAbsolutePath());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return spTags;
@@ -248,19 +228,21 @@ public class Controller {
 			return sequences;
 		}
 
-		StaypointTagFileExtractor extractor = new StaypointTagFileExtractor();
-		try {
-			List<StaypointTag> spts = extractor.extractFromTxtFile(spFile.getAbsolutePath());
-			for (StaypointTag spt : spts) {
-				// TODO: tao sequence ~ date
-				String date = spt.getTime().split(" ")[0];
-				//
-			}
-
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		// StaypointTagFileExtractor extractor = new
+		// StaypointTagFileExtractor();
+		// try {
+		// List<StaypointTag> spts =
+		// extractor.extractFromTxtFile(spFile.getAbsolutePath());
+		// for (StaypointTag spt : spts) {
+		// // TODO: tao sequence ~ date
+		// String date = spt.getTime().split(" ")[0];
+		// //
+		// }
+		//
+		// } catch (Exception e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 		return sequences;
 	}
 

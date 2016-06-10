@@ -4,7 +4,7 @@ public class SequentialPattern extends Sequence {
 	private int sup;
 
 	public SequentialPattern() {
-
+		super();
 	}
 
 	public int getSup() {
