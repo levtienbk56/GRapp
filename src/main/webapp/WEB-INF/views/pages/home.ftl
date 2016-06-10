@@ -6,11 +6,11 @@
 
 <#macro css_custom>
     <link href="/GRapp/resources/css/shop-item.css" rel="stylesheet">
+    <link href="/GRapp/resources/css/custom.css" rel="stylesheet">
 </#macro>
 	
 <#macro script_custom>
 	<script src="/GRapp/resources/js/home.js"></script>
-	<script src="/GRapp/resources/js/map.js"></script>
 	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJjR5v4RZQBNl1CJJitVFskGzNupL8GiA&callback=initMap"
     async defer></script>
 </#macro>
@@ -19,6 +19,10 @@
 </#macro>
 
 <#macro page_content>
+	<!-- process bar -->
+	<div class="progress-bar progress-bar-striped active center" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:40%">
+      <p>Processing...</p>
+    </div>
 	 <!-- Page Content -->
     <div class="container">
 
@@ -28,7 +32,7 @@
                     <h4><p>File to upload</p></h4>
                     <form method="POST" enctype="multipart/form-data" action="/GRapp/process">
 						<p><input type="file" name="file" /></p>
-						<p><button type="submit"  class="btn btn-info" >Request</button><p>
+						<p><button type="submit"  class="btn btn-info" onClick="requestProcess()">Request</button><p>
 					</form>
                 </div>
             </div>

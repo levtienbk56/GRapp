@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import com.google.gson.Gson;
 
 import hedspi.tienlv.grapp.common.Constraint;
@@ -18,6 +20,7 @@ import hedspi.tienlv.grapp.model.placeapi.Result;
 import hedspi.tienlv.grapp.utils.file.MyFile;
 import hedspi.tienlv.grapp.utils.http.ClientRequest;
 
+@Service
 public class GeotagService {
 	/**
 	 * request google api to retrive location's tags
@@ -30,7 +33,7 @@ public class GeotagService {
 
 		int radius = 20;
 		List<Result> results = new ArrayList<Result>();
-		while (radius < 100) {
+		while (radius <= 100) {
 			results = requestNearbyPlace(point, radius);
 			if (results.size() > 0) {
 				break;
@@ -161,7 +164,6 @@ public class GeotagService {
 						}
 					}
 				}
-				System.out.println("tags:" + its.toString());
 				spt.setTags(its);
 				list.add(spt);
 			}

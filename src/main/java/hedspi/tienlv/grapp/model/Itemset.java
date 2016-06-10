@@ -24,6 +24,7 @@ public class Itemset {
 				items.add(i);
 			}
 		}
+		Collections.sort(this.items);
 	}
 
 	public void addTag(int i) {

@@ -1,8 +1,14 @@
 package hedspi.tienlv.grapp.service;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
 
 import hedspi.tienlv.grapp.model.Itemset;
 import hedspi.tienlv.grapp.model.Sequence;
@@ -10,7 +16,9 @@ import hedspi.tienlv.grapp.model.SequentialPattern;
 import hedspi.tienlv.grapp.model.StaypointTag;
 import hedspi.tienlv.grapp.utils.file.MyFile;
 
+@Service
 public class SPMService {
+	public static final Logger logger = LogManager.getLogger(SPMService.class);
 
 	// TODO: processSPM
 	public List<SequentialPattern> processSPM(List<Sequence> sequences) {
@@ -52,14 +60,85 @@ public class SPMService {
 		return sequences;
 	}
 
-	// TODO: loadSequenceFromFile
-	public List<Sequence> loadSequenceFromFile(File file) {
-		return null;
+	public List<Sequence> loadSequenceFromFile(File file) throws Exception {
+		String filePath = file.getAbsolutePath();
+		List<Sequence> list = new ArrayList<Sequence>();
+		BufferedReader reader = MyFile.readFile(filePath);
+		if (reader == null) {
+			return list;
+		}
+		String line;
+
+		// each line is a sequence
+		// ex: 86 88 89 -1 92 94 -1 -2
+		while ((line = reader.readLine()) != null) {
+			// retrive sequence
+			Sequence sequence = new Sequence();
+			// split by itemset
+			List<String> strs = Arrays.asList(line.split("-1"));
+			for (String str : strs) {
+				if (str.equals(null) || str.equals("") || str.equals(" ") || str.equals("-2")) {
+					break;
+				}
+
+				// retrive itemset
+				Itemset itemset = new Itemset();
+
+				// split by item
+				String[] its = str.split(" ");
+				for (String s : its) {
+					if (s != null && s != "" && s != " ") {
+						try {
+							itemset.addTag(Integer.parseInt(s));
+						} catch (Exception e) {
+						}
+					}
+				}
+				if (itemset.getItems().size() > 0) {
+					sequence.getItemsets().add(itemset);
+				}
+			}
+
+			list.add(sequence);
+		}
+		System.out.println("SEQUENCE list size=" + list.size());
+		return list;
 	}
 
-	// TODO: writeSequenceToFile
-	public List<SequentialPattern> loadPatternFromFile(File file) {
-		return null;
+	public List<SequentialPattern> loadPatternFromFile(File file) throws Exception {
+		List<SequentialPattern> patterns = new ArrayList<SequentialPattern>();
+		BufferedReader reader = MyFile.readFile(file.getAbsolutePath());
+		if (reader == null) {
+			return patterns;
+		}
+		String line;
+
+		// each line is a sequence pattern
+		// ex: 81 89 -1 92 -1 #SUP: 5
+		while ((line = reader.readLine()) != null) {
+			SequentialPattern pattern = new SequentialPattern();
+			Itemset itemset = new Itemset();
+
+			List<String> items = Arrays.asList(line.split(" "));
+			for (String s : items) {
+				if (s.equals("-1")) {
+					pattern.getItemsets().add(itemset);
+					itemset = new Itemset();
+					continue;
+				} else if (s.equals("#SUP:")) {
+					break;
+				} else {
+					if (!s.equals("") && !s.equals(" ")) {
+						itemset.addTag(Integer.parseInt(s));
+					}
+				}
+			}
+			// last part is support count
+			pattern.setSup(Integer.parseInt(items.get(items.size() - 1)));
+			patterns.add(pattern);
+		}
+		System.out.println("PATTERN list size=" + patterns.size());
+		return patterns;
 	}
 
 	public void writeSequencesToFile(File file, List<Sequence> sequences) {
@@ -69,9 +148,7 @@ public class SPMService {
 				String str = "";
 				for (Itemset its : sq.getItemsets()) {
 					str += its.toString();
-					if (its.getItems().size() > 1) {
-						str += "-1 ";
-					}
+					str += "-1 ";
 				}
 				str += "-2\n";
 				MyFile.writeToFile(file, str);
@@ -102,7 +179,7 @@ public class SPMService {
 
 	public int estimateMinsup(List<Sequence> sequences) {
 		int sSize = sequences.size();
-		int minsup = (int) Math.ceil(Math.log(sSize))+1;
+		int minsup = (int) Math.ceil(Math.log(sSize)) + 1;
 		System.out.println("Minsup=" + minsup);
 		return minsup;
 
@@ -118,7 +195,7 @@ public class SPMService {
 			return 0;
 		}
 		sLengthAvg /= sSize;
-		int maxl = (int) Math.ceil(Math.sqrt(sLengthAvg));
+		int maxl = (int) Math.ceil(Math.sqrt(sLengthAvg) + 1);
 		System.out.println("Maxlength=" + maxl);
 		return maxl;
 	}

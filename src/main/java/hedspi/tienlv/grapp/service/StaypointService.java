@@ -7,11 +7,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import hedspi.tienlv.grapp.model.Coordinate;
 import hedspi.tienlv.grapp.model.GPSPoint;
 import hedspi.tienlv.grapp.model.Staypoint;
 import hedspi.tienlv.grapp.utils.file.MyFile;
 
+@Service
 public class StaypointService {
 	/**
 	 * file format <id>,<date time>,<longitude>,<latitude>

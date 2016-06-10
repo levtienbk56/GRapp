@@ -12,6 +12,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -20,15 +23,27 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import hedspi.tienlv.grapp.model.Sequence;
+import hedspi.tienlv.grapp.model.SequentialPattern;
 import hedspi.tienlv.grapp.model.Staypoint;
 import hedspi.tienlv.grapp.model.StaypointTag;
 import hedspi.tienlv.grapp.service.GeotagService;
 import hedspi.tienlv.grapp.service.MainService;
+import hedspi.tienlv.grapp.service.SPMService;
 import hedspi.tienlv.grapp.service.StaypointService;
 import hedspi.tienlv.grapp.utils.cookie.CookieHelper;
 
 @org.springframework.stereotype.Controller
 public class Controller {
+	public static final Logger logger = LogManager.getLogger(Controller.class);
+
+	@Autowired
+	StaypointService spService;
+	@Autowired
+	GeotagService gtservice;
+	@Autowired
+	SPMService spmService;
+	@Autowired
+	MainService mainService;
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String homePage() {
@@ -37,7 +52,7 @@ public class Controller {
 
 	@RequestMapping(value = "/process", method = RequestMethod.GET)
 	public String staypointPage() {
-		return "pages/staypoint";
+		return "pages/process";
 	}
 
 	/**
@@ -80,7 +95,7 @@ public class Controller {
 				stream.close();
 
 				// main process
-				MainService mainService = new MainService();
+				mainService = new MainService();
 				mainService.process(mFile, userID);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -120,8 +135,7 @@ public class Controller {
 
 		try {
 			/*** read file and load staypoint data ***/
-			StaypointService service = new StaypointService();
-			staypoints = service.extractFromFile(spFile);
+			staypoints = spService.extractFromFile(spFile);
 			System.out.println("Staypoint extracted: " + staypoints.size());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -147,9 +161,9 @@ public class Controller {
 			return spTags;
 		}
 
-		GeotagService service = new GeotagService();
+		gtservice = new GeotagService();
 		try {
-			spTags = service.loadStaypointTagsFromFile(sptFile);
+			spTags = gtservice.loadStaypointTagsFromFile(sptFile);
 			System.out.println("StaypointTag extracted: " + spTags.size());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -168,33 +182,45 @@ public class Controller {
 		}
 
 		String uploadRootPath = request.getServletContext().getRealPath("upload");
-		// folder staypoint
-		File spFile = new File(uploadRootPath + "/geotag/" + cookie.getValue() + ".txt");
-		if (!spFile.exists()) {
+		// folder sequence
+		File sqFile = new File(uploadRootPath + "/sequence/" + cookie.getValue() + ".txt");
+		if (!sqFile.exists()) {
 			return sequences;
 		}
 
-		// StaypointTagFileExtractor extractor = new
-		// StaypointTagFileExtractor();
-		// try {
-		// List<StaypointTag> spts =
-		// extractor.extractFromTxtFile(spFile.getAbsolutePath());
-		// for (StaypointTag spt : spts) {
-		// // TODO: tao sequence ~ date
-		// String date = spt.getTime().split(" ")[0];
-		// //
-		// }
-		//
-		// } catch (Exception e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
+		try {
+			sequences = spmService.loadSequenceFromFile(sqFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return sequences;
 	}
 
-	@RequestMapping(value = "/sequence-pattern", method = RequestMethod.POST)
-	public @ResponseBody List<Staypoint> getSequencePattern(HttpServletRequest request, HttpServletResponse response) {
+	@RequestMapping(value = "/pattern", method = RequestMethod.POST)
+	public @ResponseBody List<SequentialPattern> getSequencePattern(HttpServletRequest request,
+			HttpServletResponse response) {
+		List<SequentialPattern> patterns = new ArrayList<SequentialPattern>();
 
-		return null;
+		CookieHelper ch = new CookieHelper(request, response);
+		Cookie cookie = ch.getCookie("user_id");
+		if (cookie == null) {
+			return patterns;
+		}
+
+		String uploadRootPath = request.getServletContext().getRealPath("upload");
+		// folder sequence pattern
+		File pFile = new File(uploadRootPath + "/pattern/" + cookie.getValue() + ".txt");
+		if (!pFile.exists()) {
+			return patterns;
+		}
+
+		try {
+			patterns = spmService.loadPatternFromFile(pFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return patterns;
 	}
 }

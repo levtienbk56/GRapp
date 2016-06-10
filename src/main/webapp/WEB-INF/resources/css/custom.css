@@ -1,10 +1,8 @@
-.center {
-	float: none;
-	margin-left: auto;
-	margin-right: auto;
-}
-
 .tablescroll {
 	height: 500px;
 	overflow: auto;
+}
+
+.center{
+	margin: auto;
 }

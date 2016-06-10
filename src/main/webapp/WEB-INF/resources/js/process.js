@@ -60,10 +60,15 @@ function StaypointTag(id, time, lat, lng) {
 var staypoints = [];
 var staypointTags = [];
 
+// load staypoint
+$(document).ready(function() {
+	requestStaypoint();
+});
+
 /*
  * send request get staypoint list. @callback: then draw MAP
  */
-function requestExtractStaypoint() {
+function requestStaypoint() {
 	$.ajax({
 		type : "POST",
 		url : "/GRapp/staypoint",
@@ -119,6 +124,8 @@ function requestGeotag() {
 				$("#label-of-staypoint tr.anchor").before(str);
 			}
 
+			// load sequence
+			requestSequences();
 		},
 		error : function(e) {
 			console.log("ERROR " + e);
@@ -129,7 +136,7 @@ function requestGeotag() {
 	});
 }
 
-function requestCreateSequence() {
+function requestSequences() {
 	$.ajax({
 		type : "POST",
 		url : "/GRapp/sequence",
@@ -137,25 +144,9 @@ function requestCreateSequence() {
 		// data is list of Point object
 		success : function(data) {
 			console.log(data);
-			var spt;
-			for (var j = 0; j < data.length; j++) {
-				spt = data[j];
-				var str = "<tr>";
-				str += "<td>" + spt.time + "</td>";
-				str += "<td>" + spt.latlng.lat + ", " + spt.latlng.lng
-						+ "</td>";
-				str += "<td>";
-				for (var i = 0; i < spt.tags.length; i++) {
-					str += "<span class='label label-success'>" + spt.tags[i]
-							+ "</span> ";
-				}
-				str += "<td>";
-				str += "</tr>";
 
-				// append html as a cup
-				$("#label-of-staypoint tr.anchor").before(str);
-			}
-
+			// next load pattern
+			requestPattern();
 		},
 		error : function(e) {
 			console.log("ERROR " + e);
@@ -166,6 +157,39 @@ function requestCreateSequence() {
 	});
 }
 
-$(document).ready(function() {
-	requestExtractStaypoint();
-});
+function requestPattern() {
+	$.ajax({
+		type : "POST",
+		url : "/GRapp/pattern",
+		timeout : 100000,
+		// data is list of Point object
+		success : function(data) {
+			console.log(data);
+			// var spt;
+			// for (var j = 0; j < data.length; j++) {
+			// spt = data[j];
+			// var str = "<tr>";
+			// str += "<td>" + spt.time + "</td>";
+			// str += "<td>" + spt.latlng.lat + ", " + spt.latlng.lng
+			// + "</td>";
+			// str += "<td>";
+			// for (var i = 0; i < spt.tags.length; i++) {
+			// str += "<span class='label label-success'>" + spt.tags[i]
+			// + "</span> ";
+			// }
+			// str += "<td>";
+			// str += "</tr>";
+			//
+			// // append html as a cup
+			// $("#label-of-staypoint tr.anchor").before(str);
+			// }
+
+		},
+		error : function(e) {
+			console.log("ERROR " + e);
+		},
+		done : function(e) {
+			console.log("DONE " + e);
+		}
+	});
+}

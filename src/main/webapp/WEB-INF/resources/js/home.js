@@ -18,3 +18,11 @@ function initMap() {
 		title : 'Trường Đại học Bách khoa Hà Nội!'
 	});
 }
+
+$(document).ready(function(){
+	$(".progress-bar").fadeOut(0);
+});
+function requestProcess() {
+	$(".progress-bar").fadeIn(0);
+	$(".container").fadeOut(0);
+}

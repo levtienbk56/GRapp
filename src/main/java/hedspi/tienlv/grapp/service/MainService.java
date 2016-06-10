@@ -5,15 +5,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
+
+import ca.pfv.spmf.algorithms.sequentialpatterns.BIDE_and_prefixspan.AlgoPrefixSpan;
+import ca.pfv.spmf.input.sequence_database_list_integers.SequenceDatabase;
 import hedspi.tienlv.grapp.model.GPSPoint;
 import hedspi.tienlv.grapp.model.Itemset;
 import hedspi.tienlv.grapp.model.Sequence;
 import hedspi.tienlv.grapp.model.Staypoint;
 import hedspi.tienlv.grapp.model.StaypointTag;
-import ca.pfv.spmf.algorithms.sequentialpatterns.BIDE_and_prefixspan.AlgoPrefixSpan;
-import ca.pfv.spmf.input.sequence_database_list_integers.SequenceDatabase;
 
+@Service
 public class MainService {
+	public static final Logger logger = LogManager.getLogger(MainService.class);
+
 	public void process(File file, String userID) {
 		/*******************************************************************/
 		/*** init variable **************************************************/
@@ -29,7 +36,6 @@ public class MainService {
 		StaypointService spService = new StaypointService();
 		GeotagService gtService = new GeotagService();
 		SPMService spmService = new SPMService();
-
 		// resource directory
 		File uDir = file.getParentFile();
 

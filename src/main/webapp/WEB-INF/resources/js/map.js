@@ -1,10 +1,10 @@
-var modulColor=(function(){
-     var colors = [ '#ff0000', '#008000', '#4B0082', '#0000FF', '#FFA500' ];
-     return {
-            getColor:function(i) {
-                return colors[i % 5];
-            }
-      }
+var modulColor = (function() {
+	var colors = [ '#ff0000', '#008000', '#4B0082', '#0000FF', '#FFA500' ];
+	return {
+		getColor : function(i) {
+			return colors[i % 5];
+		}
+	}
 }());
 
 var centerMap = {
@@ -80,7 +80,5 @@ function initMap() {
 				}
 			});
 		}
-
 	}
-
 }

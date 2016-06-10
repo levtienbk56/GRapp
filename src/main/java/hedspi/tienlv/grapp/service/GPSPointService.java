@@ -7,9 +7,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import hedspi.tienlv.grapp.model.GPSPoint;
 import hedspi.tienlv.grapp.utils.file.MyFile;
 
+@Service
 public class GPSPointService {
 	/**
 	 * file format <id>,<date time>,<longitude>,<latitude>
