@@ -26,6 +26,10 @@ public class Itemset {
 		}
 	}
 
+	public void addTag(int i) {
+		this.items.add(i);
+	}
+
 	public List<Integer> getItems() {
 		return items;
 	}

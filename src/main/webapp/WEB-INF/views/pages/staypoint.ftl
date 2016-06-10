@@ -6,6 +6,7 @@
 
 <#macro css_custom>
     <link href="/GRapp/resources/css/shop-item.css" rel="stylesheet">
+	<link href="/GRapp/resources/css/custom.css" rel="stylesheet">
 </#macro>
 	
 <#macro script_custom>

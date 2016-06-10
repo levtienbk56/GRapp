@@ -1,7 +1,9 @@
 package hedspi.tienlv.grapp.service;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -9,6 +11,7 @@ import com.google.gson.Gson;
 
 import hedspi.tienlv.grapp.common.Constraint;
 import hedspi.tienlv.grapp.model.Coordinate;
+import hedspi.tienlv.grapp.model.Itemset;
 import hedspi.tienlv.grapp.model.StaypointTag;
 import hedspi.tienlv.grapp.model.placeapi.NearBySearchResult;
 import hedspi.tienlv.grapp.model.placeapi.Result;
@@ -105,8 +108,75 @@ public class GeotagService {
 		}
 	}
 
-	// TODO: loadStaypointTagsFromFile
-	public List<StaypointTag> loadStaypointTagsFromFile(File file) {
-		return null;
+	public List<StaypointTag> loadStaypointTagsFromFile(File file) throws Exception {
+		String filePath = file.getAbsolutePath();
+		List<StaypointTag> list = new ArrayList<StaypointTag>();
+		BufferedReader reader = MyFile.readFile(filePath);
+		if (reader == null) {
+			return list;
+		}
+		String line;
+
+		// check first lind for header
+		line = reader.readLine();
+		if (line != null) {
+			List<String> items = Arrays.asList(line.split("\\s*,\\s*"));
+
+			// remove header
+			if (!items.get(0).equals("name") && !items.get(0).equals("id")) {
+				if (items.size() != 5) {
+					return list;
+				}
+				StaypointTag spt = new StaypointTag();
+				spt.setId(getID(items.get(0)));
+				spt.setTime(items.get(1));
+				spt.setLatlng(new Coordinate(new Double(items.get(2)), new Double(items.get(3))));
+
+				// get string tags
+				String[] tags = items.get(4).trim().split(" ");
+				Itemset its = new Itemset(Arrays.asList(tags));
+				spt.setTags(its);
+				list.add(spt);
+			}
+
+			// continue with other line
+			while ((line = reader.readLine()) != null) {
+				items = Arrays.asList(line.split("\\s*,\\s*"));
+				if (items.size() != 5) {
+					return list;
+				}
+				StaypointTag spt = new StaypointTag();
+				spt.setId(getID(items.get(0)));
+				spt.setTime(items.get(1));
+				spt.setLatlng(new Coordinate(new Double(items.get(2)), new Double(items.get(3))));
+
+				// load int tag
+				String[] tags = items.get(4).trim().split(" ");
+				Itemset its = new Itemset();
+				for (String tag : tags) {
+					if (tag != null && tag != "" && tag != " ") {
+						try {
+							its.addTag(Integer.parseInt(tag));
+						} catch (Exception e) {
+						}
+					}
+				}
+				System.out.println("tags:" + its.toString());
+				spt.setTags(its);
+				list.add(spt);
+			}
+		}
+		return list;
 	}
+
+	static int getID(String s) {
+		int a;
+		try {
+			a = Integer.parseInt(s);
+		} catch (Exception ex) {
+			a = 0;
+		}
+		return a;
+	}
+
 }

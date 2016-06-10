@@ -22,10 +22,10 @@ public class StaypointService {
 	 */
 	public List<Staypoint> extractFromFile(File file) throws Exception {
 		String filePath = file.getAbsolutePath();
-		List<Staypoint> arr = new ArrayList<Staypoint>();
+		List<Staypoint> list = new ArrayList<Staypoint>();
 		BufferedReader reader = MyFile.readFile(filePath);
 		if (reader == null) {
-			return arr;
+			return list;
 		}
 		String line;
 
@@ -40,7 +40,7 @@ public class StaypointService {
 				sp.setId(getID(items.get(0)));
 				sp.setTime(items.get(1));
 				sp.setLatlng(new Coordinate(new Double(items.get(2)), new Double(items.get(3))));
-				arr.add(sp);
+				list.add(sp);
 			}
 
 			// continue with other line
@@ -53,10 +53,10 @@ public class StaypointService {
 				sp.setId(getID(items.get(0)));
 				sp.setTime(items.get(1));
 				sp.setLatlng(new Coordinate(new Double(items.get(2)), new Double(items.get(3))));
-				arr.add(sp);
+				list.add(sp);
 			}
 		}
-		return arr;
+		return list;
 	}
 
 	static int getID(String s) {

@@ -108,48 +108,21 @@ public class Controller {
 
 		/*** folder upload ***/
 		String uploadRootPath = request.getServletContext().getRealPath("upload");
-		File uploadRootDir = new File(uploadRootPath);
-		// Create directory if it not exists.
-		if (!uploadRootDir.exists()) {
-			uploadRootDir.mkdirs();
-		}
-
-		/*** file uploaded ***/
-		File uFile = new File(uploadRootPath + "/" + cookie.getValue() + ".txt");
-		if (!uFile.exists() || uFile.isDirectory()) {
-			return staypoints;
-		}
-
-		/*** check if filename is not Integer type ***/
-		try {
-			Integer.parseInt(cookie.getValue());
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			return staypoints;
-		}
-
-		/*** save staypoint into file ***/
-		// folder staypoint
-		File spdir = new File(uploadRootPath + "/staypoint");
-		if (!spdir.exists()) {
-			spdir.mkdirs();
-		}
 		// file staypoint
-		File spFile = new File(spdir + "/" + cookie.getValue() + ".txt");
+		File spFile = new File(uploadRootPath + "/staypoint/" + cookie.getValue() + ".txt");
 		/***
 		 * if exist, read file and return client. else, calcute staypoint, then
 		 * write to file
 		 **/
-		if (spFile.exists()) {
+		if (!spFile.exists()) {
 			return staypoints;
 		}
 
 		try {
-			/*** read upload file and load gps point data ***/
-
-			/*** extract staypoint ***/
-
-			System.out.println("Staypoint extract: " + staypoints.size());
+			/*** read file and load staypoint data ***/
+			StaypointService service = new StaypointService();
+			staypoints = service.extractFromFile(spFile);
+			System.out.println("Staypoint extracted: " + staypoints.size());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -169,45 +142,18 @@ public class Controller {
 
 		/*** check if exist, just load data from file then return to client ***/
 		String uploadRootPath = request.getServletContext().getRealPath("upload");
-		File sptDir = new File(uploadRootPath + "/staypointTag");
-		if (!sptDir.exists()) {
-			sptDir.mkdirs();
-		}
-		File sptFile = new File(sptDir + "/" + cookie.getValue() + ".txt");
-		if (sptFile.exists()) {
-			// load and return
+		File sptFile = new File(uploadRootPath + "/staypointTag/" + cookie.getValue() + ".txt");
+		if (!sptFile.exists()) {
 			return spTags;
 		}
 
-		/*** not exist, calcute and save to file, then return back client ***/
-		// folder staypoint
-		File spFile = new File(uploadRootPath + "/staypoint/" + cookie.getValue() + ".txt");
-		if (!spFile.exists()) {
-			return spTags;
-		}
-
-		StaypointService spService = new StaypointService();
+		GeotagService service = new GeotagService();
 		try {
-			List<Staypoint> staypoints = spService.extractFromFile(spFile);
-			GeotagService geotagService = new GeotagService();
-			for (Staypoint sp : staypoints) {
-				StaypointTag spt = new StaypointTag();
-				spt.setId(sp.getId());
-				spt.setLatlng(sp.getLatlng());
-				spt.setTime(sp.getTime());
-
-				// geotag
-				List<String> tags = geotagService.getTags(sp.getLatlng());
-				// spt.setTags(tags);
-				// spTags.add(spt);
-			}
-			// write file
-			// geotagService.writeToFile(spTags, sptFile.getAbsolutePath());
+			spTags = service.loadStaypointTagsFromFile(sptFile);
+			System.out.println("StaypointTag extracted: " + spTags.size());
 		} catch (Exception e) {
 			e.printStackTrace();
-			return spTags;
 		}
-
 		return spTags;
 	}
 
