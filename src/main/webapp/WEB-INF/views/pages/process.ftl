@@ -51,6 +51,9 @@
 						    </tbody>
 						 </table>
 				  	</div>
+				  	<div class="panel-footer">
+				  		<p>for each Staypoint, we use "Reverse Geocoding" by requesting Google API to find the label - types of location</p>
+				  	</div>
 				</div>
 				
 				<div class="panel panel-primary"  id="section3">
@@ -70,6 +73,11 @@
 						        <tr class="anchor"></tr>
 						    </tbody>
 						 </table>
+				  	</div>
+				  	<div class="panel-footer">
+				  		<p>This phase, we'll create Sequences as data input for SequentialPatternMining process.</p>
+				  		<p>Each Sequence is joinning of labels which retrived by Geotag, and group by date. (one date ~ one sequence)</p>
+				  		<p>labels of each Staypoint is diving by <span class='label label-warning'>|</span> </p>
 				  	</div>
 				</div>
 				
@@ -91,6 +99,11 @@
 						        <tr class="anchor"></tr>
 						    </tbody>
 						 </table>
+				  	</div>
+				  	<div class="panel-footer">
+				  		<p>this phase, we extract Sequential Pattern by using <a href="http://www.philippe-fournier-viger.com/spmf/">SPMF</a> </p>
+				  		<p>column "Support Count" is number sequence that Pattern appears</p>
+				  		<p>labels of each Staypoint is diving by <span class='label label-warning'>|</span> </p>
 				  	</div>
 				</div>
             </div>

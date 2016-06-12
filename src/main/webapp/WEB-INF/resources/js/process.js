@@ -101,7 +101,6 @@ function requestStaypoint() {
 					// centroid
 					centerMap.lat = centerMap.lat / i;
 					centerMap.lng = centerMap.lng / i;
-					alert(centerMap);
 					$
 							.getScript(
 									"https://maps.googleapis.com/maps/api/js?key=AIzaSyCJjR5v4RZQBNl1CJJitVFskGzNupL8GiA&callback=initMap",
@@ -187,7 +186,9 @@ function requestSequences() {
 						str += "<span class='label label-success'>" + tag
 								+ "</span> ";
 					}
-					str += "<span class='label label-warning'>|</span> ";
+					if (i < sq.itemsets.length - 1) {
+						str += "<span class='label label-warning'>|</span> ";
+					}
 				}
 				str += "</td>";
 				str += "</tr>";
@@ -232,7 +233,9 @@ function requestPattern() {
 						str += "<span class='label label-success'>" + tag
 								+ "</span> ";
 					}
-					str += "<span class='label label-warning'>|</span> ";
+					if (i < sq.itemsets.length - 1) {
+						str += "<span class='label label-warning'>|</span> ";
+					}
 				}
 				str += "</td>";
 				str += "</tr>";
