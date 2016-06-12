@@ -14,6 +14,7 @@ import hedspi.tienlv.grapp.model.Itemset;
 import hedspi.tienlv.grapp.model.Sequence;
 import hedspi.tienlv.grapp.model.SequentialPattern;
 import hedspi.tienlv.grapp.model.StaypointTag;
+import hedspi.tienlv.grapp.model.placeapi.Result;
 import hedspi.tienlv.grapp.utils.file.MyFile;
 
 @Service
@@ -56,7 +57,6 @@ public class SPMService {
 		sequence.setItemsets(its);
 		sequences.add(sequence);
 
-		System.out.println("SEQUENCE list size=" + sequences.size());
 		return sequences;
 	}
 
@@ -87,9 +87,12 @@ public class SPMService {
 				// split by item
 				String[] its = str.split(" ");
 				for (String s : its) {
-					if (s != null && s != "" && s != " ") {
+					if (!s.equals(null) && !s.equals("") && !s.equals(" ") && !s.equals("-2")) {
 						try {
-							itemset.addTag(Integer.parseInt(s));
+							int a = Integer.parseInt(s);
+							if (a > 0 && a < Result.array.length) {
+								itemset.addTag(a);
+							}
 						} catch (Exception e) {
 						}
 					}
@@ -101,7 +104,6 @@ public class SPMService {
 
 			list.add(sequence);
 		}
-		System.out.println("SEQUENCE list size=" + list.size());
 		return list;
 	}
 
@@ -137,7 +139,6 @@ public class SPMService {
 			pattern.setSup(Integer.parseInt(items.get(items.size() - 1)));
 			patterns.add(pattern);
 		}
-		System.out.println("PATTERN list size=" + patterns.size());
 		return patterns;
 	}
 

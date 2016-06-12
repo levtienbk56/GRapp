@@ -136,12 +136,11 @@ public class Controller {
 		try {
 			/*** read file and load staypoint data ***/
 			staypoints = spService.extractFromFile(spFile);
-			System.out.println("Staypoint extracted: " + staypoints.size());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		return staypoints;
+		return logger.exit(staypoints);
 	}
 
 	@RequestMapping(value = "/geotag", method = RequestMethod.POST)
@@ -164,11 +163,10 @@ public class Controller {
 		gtservice = new GeotagService();
 		try {
 			spTags = gtservice.loadStaypointTagsFromFile(sptFile);
-			System.out.println("StaypointTag extracted: " + spTags.size());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return spTags;
+		return logger.exit(spTags);
 	}
 
 	@RequestMapping(value = "/sequence", method = RequestMethod.POST)
@@ -194,7 +192,7 @@ public class Controller {
 			e.printStackTrace();
 		}
 
-		return sequences;
+		return logger.exit(sequences);
 	}
 
 	@RequestMapping(value = "/pattern", method = RequestMethod.POST)
@@ -211,6 +209,7 @@ public class Controller {
 		String uploadRootPath = request.getServletContext().getRealPath("upload");
 		// folder sequence pattern
 		File pFile = new File(uploadRootPath + "/pattern/" + cookie.getValue() + ".txt");
+		logger.debug("patternFile", pFile.getAbsolutePath());
 		if (!pFile.exists()) {
 			return patterns;
 		}
@@ -221,6 +220,6 @@ public class Controller {
 			e.printStackTrace();
 		}
 
-		return patterns;
+		return logger.exit(patterns);
 	}
 }

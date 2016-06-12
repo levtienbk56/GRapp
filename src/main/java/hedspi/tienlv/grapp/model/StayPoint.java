@@ -59,7 +59,7 @@ public class Staypoint extends GPSPoint {
 
 	@Override
 	public String toString() {
-		return "avgCoordinate=" + latlng + ", time=" + time;
+		return super.toString();
 	}
 
 }

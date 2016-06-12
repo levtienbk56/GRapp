@@ -57,6 +57,15 @@ function StaypointTag(id, time, lat, lng) {
 	this.tags = []; // tags
 }
 
+function Itemset() {
+	this.items = [];
+}
+
+function Sequence() {
+	this.date = "";
+	this.itemsets = [];
+}
+
 var staypoints = [];
 var staypointTags = [];
 
@@ -69,30 +78,46 @@ $(document).ready(function() {
  * send request get staypoint list. @callback: then draw MAP
  */
 function requestStaypoint() {
-	$.ajax({
-		type : "POST",
-		url : "/GRapp/staypoint",
-		timeout : 100000,
-		// data is list of Point object
-		success : function(data) {
-			staypoints = data;
-			console.log(data);
-			// $
-			// .getScript(
-			// "https://maps.googleapis.com/maps/api/js?key=AIzaSyCJjR5v4RZQBNl1CJJitVFskGzNupL8GiA&callback=initMap",
-			// function() {
-			// });
-			// request geotag
-			requestGeotag();
+	$
+			.ajax({
+				type : "POST",
+				url : "/GRapp/staypoint",
+				timeout : 100000,
+				// data is list of Point object
+				success : function(data) {
+					staypoints = data;
+					console.log(data);
+					centerMap = new Coordinate(0, 0);
+					for (var i = 0; i < data.length; i++) {
+						var sp = data[i];
+						centerMap.lat += parseFloat(sp.latlng.lat);
+						centerMap.lng += parseFloat(sp.latlng.lng);
+					}
+					if (i <= 0) {
+						alert("no data found!");
+						return;
+					}
 
-		},
-		error : function(e) {
-			console.log("ERROR " + e);
-		},
-		done : function(e) {
-			console.log("DONE " + e);
-		}
-	});
+					// centroid
+					centerMap.lat = centerMap.lat / i;
+					centerMap.lng = centerMap.lng / i;
+					alert(centerMap);
+					$
+							.getScript(
+									"https://maps.googleapis.com/maps/api/js?key=AIzaSyCJjR5v4RZQBNl1CJJitVFskGzNupL8GiA&callback=initMap",
+									function() {
+									});
+					// request geotag
+					requestGeotag();
+
+				},
+				error : function(e) {
+					console.log("ERROR " + e);
+				},
+				done : function(e) {
+					console.log("DONE " + e);
+				}
+			});
 }
 
 function requestGeotag() {
@@ -100,7 +125,7 @@ function requestGeotag() {
 		type : "POST",
 		url : "/GRapp/geotag",
 		timeout : 100000,
-		// data is list of Point object
+		// data is List<StaypointTag>
 		success : function(data) {
 			console.log(data);
 			var spt, tag;
@@ -136,14 +161,40 @@ function requestGeotag() {
 	});
 }
 
+// TODO: sequence table
 function requestSequences() {
 	$.ajax({
 		type : "POST",
 		url : "/GRapp/sequence",
 		timeout : 100000,
-		// data is list of Point object
+		// data is List<Sequence>
 		success : function(data) {
 			console.log(data);
+
+			var sq, tag, items;
+			// draw table
+			for (var j = 0; j < data.length; j++) {
+				sq = data[j];
+				var str = "<tr>";
+				str += "<td class='text-center'>" + (j + 1) + "</td>";
+				str += "<td>";
+				// for each itemset
+				for (var i = 0; i < sq.itemsets.length; i++) {
+					items = sq.itemsets[i].items;
+					for (var k = 0; k < items.length; k++) {
+						// get string tag
+						tag = modulTypes.getType(items[k]);
+						str += "<span class='label label-success'>" + tag
+								+ "</span> ";
+					}
+					str += "<span class='label label-warning'>|</span> ";
+				}
+				str += "</td>";
+				str += "</tr>";
+
+				// append html as a cup
+				$("#sequence tr.anchor").before(str);
+			}
 
 			// next load pattern
 			requestPattern();
@@ -162,27 +213,33 @@ function requestPattern() {
 		type : "POST",
 		url : "/GRapp/pattern",
 		timeout : 100000,
-		// data is list of Point object
+		// data is list<SequentialPattern>
 		success : function(data) {
 			console.log(data);
-			// var spt;
-			// for (var j = 0; j < data.length; j++) {
-			// spt = data[j];
-			// var str = "<tr>";
-			// str += "<td>" + spt.time + "</td>";
-			// str += "<td>" + spt.latlng.lat + ", " + spt.latlng.lng
-			// + "</td>";
-			// str += "<td>";
-			// for (var i = 0; i < spt.tags.length; i++) {
-			// str += "<span class='label label-success'>" + spt.tags[i]
-			// + "</span> ";
-			// }
-			// str += "<td>";
-			// str += "</tr>";
-			//
-			// // append html as a cup
-			// $("#label-of-staypoint tr.anchor").before(str);
-			// }
+			// draw table
+			for (var j = 0; j < data.length; j++) {
+				sq = data[j];
+				var str = "<tr>";
+				str += "<td class='text-center'>" + (j + 1) + "</td>";
+				str += "<td class='text-center'>" + sq.sup + "</td>";
+				str += "<td>";
+				// for each itemset
+				for (var i = 0; i < sq.itemsets.length; i++) {
+					items = sq.itemsets[i].items;
+					for (var k = 0; k < items.length; k++) {
+						// get string tag
+						tag = modulTypes.getType(items[k]);
+						str += "<span class='label label-success'>" + tag
+								+ "</span> ";
+					}
+					str += "<span class='label label-warning'>|</span> ";
+				}
+				str += "</td>";
+				str += "</tr>";
+
+				// append html as a cup
+				$("#sequence-pattern tr.anchor").before(str);
+			}
 
 		},
 		error : function(e) {

@@ -15,4 +15,13 @@ public class SequentialPattern extends Sequence {
 		this.sup = sup;
 	}
 
+	public String toString() {
+		String str = "(" + this.sup + ",[";
+		for (Itemset i : this.itemsets) {
+			str += i.toString() + ",";
+		}
+		str += "])";
+		return str;
+	}
+
 }

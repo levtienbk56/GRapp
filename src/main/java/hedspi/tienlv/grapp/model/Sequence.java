@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Sequence {
 	private String date;
-	private List<Itemset> itemsets;
+	protected List<Itemset> itemsets;
 
 	public Sequence() {
 		this.date = "";
@@ -45,5 +45,14 @@ public class Sequence {
 			l += its.getItems().size();
 		}
 		return l;
+	}
+
+	public String toString() {
+		String str = "(" + this.date + ",[";
+		for (Itemset i : this.itemsets) {
+			str += i.toString() + ",";
+		}
+		str += "])";
+		return str;
 	}
 }

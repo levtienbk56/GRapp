@@ -67,7 +67,7 @@ public class GPSPoint {
 
 	@Override
 	public String toString() {
-		return super.toString() + ", time=" + time;
+		return "(" + this.id + "," + this.time + "," + this.latlng.toString() + ")";
 	}
 
 	@Override

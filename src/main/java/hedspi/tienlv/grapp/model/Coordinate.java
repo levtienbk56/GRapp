@@ -66,7 +66,7 @@ public class Coordinate {
 
 	@Override
 	public String toString() {
-		return "lat=" + lat + ", lng=" + lng;
+		return lat + "," + lng;
 	}
 
 }

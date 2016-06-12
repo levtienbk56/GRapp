@@ -30,4 +30,9 @@ public class StaypointTag extends GPSPoint {
 	public List<String> getStringTags() {
 		return tags.getItemsString();
 	}
+
+	public String toAtring() {
+		return "(" + super.toString() + "," + this.tags.toString() + ")";
+	}
+
 }
