@@ -44,7 +44,6 @@ public class MainService {
 		/*******************************************************************/
 		try {
 			gpsPoints = gpsPointService.extractPointFromFile(file);
-			System.out.println("GPS POINT list size=" + gpsPoints.size());
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			return;
@@ -58,8 +57,15 @@ public class MainService {
 		if (!spdir.exists()) {
 			spdir.mkdirs();
 		}
+
+		// folder nearpoint
+		File nearDir = new File(spdir + "/nearpoint");
+		if (!nearDir.exists()) {
+			nearDir.mkdirs();
+		}
 		// file staypoint
 		File spFile = new File(spdir + "/" + userID + ".txt");
+		File nearFile = new File(nearDir + "/" + userID + ".txt");
 
 		// if exist, do nothing, then exit.
 		// else, calcute staypoint, then write to file.
@@ -69,7 +75,7 @@ public class MainService {
 		try {
 			staypoints = spService.extractStayPoints(gpsPoints, 30, 1200);
 			spService.writeFile(staypoints, spFile);
-			System.out.println("STAYPOINT list size=" + staypoints.size());
+			spService.writeNearPointToFile(staypoints, nearFile);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
@@ -89,7 +95,11 @@ public class MainService {
 			return;
 		}
 		for (Staypoint sp : staypoints) {
+			// dddd
 			List<String> tags = gtService.getTags(sp.getLatlng());
+			if (tags.isEmpty()) {
+				continue;
+			}
 			Itemset itemset = new Itemset(tags);
 
 			StaypointTag spt = new StaypointTag();
@@ -102,8 +112,6 @@ public class MainService {
 		try {
 			// write to file
 			gtService.writeToFile(staypointTags, sptFile);
-
-			System.out.println("STAYPOINT TAG list size=" + staypointTags.size());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
@@ -151,7 +159,6 @@ public class MainService {
 			algo.setMaximumPatternLength(maxlength);
 			algo.setShowSequenceIdentifiers(false);
 			algo.runAlgorithm(sequenceDatabase, pFile.getAbsolutePath(), minsup);
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

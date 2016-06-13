@@ -39,18 +39,20 @@ public class StaypointService {
 
 			// remove header
 			if (!items.get(0).equals("name") && !items.get(0).equals("id")) {
-				Staypoint sp = new Staypoint();
-				sp.setId(getID(items.get(0)));
-				sp.setTime(items.get(1));
-				sp.setLatlng(new Coordinate(new Double(items.get(2)), new Double(items.get(3))));
-				list.add(sp);
+				if (items.size() == 4) {
+					Staypoint sp = new Staypoint();
+					sp.setId(getID(items.get(0)));
+					sp.setTime(items.get(1));
+					sp.setLatlng(new Coordinate(new Double(items.get(2)), new Double(items.get(3))));
+					list.add(sp);
+				}
 			}
 
 			// continue with other line
 			while ((line = reader.readLine()) != null) {
 				items = Arrays.asList(line.split("\\s*,\\s*"));
 				if (items.size() != 4) {
-					break;
+					continue;
 				}
 				Staypoint sp = new Staypoint();
 				sp.setId(getID(items.get(0)));
@@ -90,7 +92,7 @@ public class StaypointService {
 	 * @return list of StayPoint
 	 */
 	public List<Staypoint> extractStayPoints(List<GPSPoint> gpsPoints, double distThresh, double timeThresh) {
-		int i = 0, j, token, pointNum;
+		int i = 0, j, k = 0, token, pointNum;
 		double dist;
 		long deltaTime;
 		GPSPoint pi, pj;
@@ -119,6 +121,7 @@ public class StaypointService {
 					if (deltaTime > timeThresh) {
 						int l;
 						Staypoint S = new Staypoint();
+						S.setId(k);
 						for (l = i; l < j; l++) {
 							// @see contains()
 							if (!S.getArr().contains(gpsPoints.get(l))) {
@@ -133,6 +136,7 @@ public class StaypointService {
 						SP.add(S);
 						i = j;
 						token = 1;
+						k++; // id of staypoint
 					}
 					break;
 				}
@@ -143,5 +147,46 @@ public class StaypointService {
 			}
 		}
 		return SP;
+	}
+
+	public void writeNearPointToFile(List<Staypoint> staypoints, File file) throws Exception {
+		int i, j;
+		for (i = 0; i < staypoints.size(); i++) {
+			Staypoint sp = staypoints.get(i);
+			List<GPSPoint> arr = sp.getArr();
+			for (j = 0; j < arr.size(); j++) {
+				GPSPoint p = arr.get(j);
+				String str = i + "," + p.getTime() + "," + p.getLatlng().getLat() + "," + p.getLatlng().getLng() + "\n";
+				MyFile.writeToFile(file, str);
+			}
+		}
+	}
+
+	public void extractNearPointFromFile(List<Staypoint> staypoints, File nearFile) throws Exception {
+		String filePath = nearFile.getAbsolutePath();
+		BufferedReader reader = MyFile.readFile(filePath);
+		if (reader == null) {
+			return;
+		}
+		String line;
+		List<String> items;
+		// continue with other line
+		while ((line = reader.readLine()) != null) {
+			items = Arrays.asList(line.split("\\s*,\\s*"));
+			int id = getID(items.get(0));
+			if (items.size() != 4) {
+				break;
+			}
+			GPSPoint p = new GPSPoint();
+			p.setId(id);
+			p.setTime(items.get(1));
+			p.setLatlng(new Coordinate(new Double(items.get(2)), new Double(items.get(3))));
+			for (Staypoint a : staypoints) {
+				if (a.getId() == id) {
+					a.getArr().add(p);
+					break;
+				}
+			}
+		}
 	}
 }

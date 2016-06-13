@@ -96,10 +96,10 @@ public class GPSPoint {
 
 		// get only 4 decimals (~0.8 meter)
 		// +-0.8m still equals
-		double lat1 = DoubleHelper.round(this.getLatlng().getLat(), 5);
-		double lng1 = DoubleHelper.round(this.getLatlng().getLng(), 5);
-		double lat2 = DoubleHelper.round(other.getLatlng().getLat(), 5);
-		double lng2 = DoubleHelper.round(other.getLatlng().getLng(), 5);
+		double lat1 = DoubleHelper.round(this.getLatlng().getLat(), 6);
+		double lng1 = DoubleHelper.round(this.getLatlng().getLng(), 6);
+		double lat2 = DoubleHelper.round(other.getLatlng().getLat(), 6);
+		double lng2 = DoubleHelper.round(other.getLatlng().getLng(), 6);
 		if (!(lat1 == lat2) || !(lng1 == lng2)) {
 			return false;
 		}

@@ -127,26 +127,25 @@ public class GeotagService {
 
 			// remove header
 			if (!items.get(0).equals("name") && !items.get(0).equals("id")) {
-				if (items.size() != 5) {
-					return list;
-				}
-				StaypointTag spt = new StaypointTag();
-				spt.setId(getID(items.get(0)));
-				spt.setTime(items.get(1));
-				spt.setLatlng(new Coordinate(new Double(items.get(2)), new Double(items.get(3))));
+				if (items.size() == 5) {
+					StaypointTag spt = new StaypointTag();
+					spt.setId(getID(items.get(0)));
+					spt.setTime(items.get(1));
+					spt.setLatlng(new Coordinate(new Double(items.get(2)), new Double(items.get(3))));
 
-				// get string tags
-				String[] tags = items.get(4).trim().split(" ");
-				Itemset its = new Itemset(Arrays.asList(tags));
-				spt.setTags(its);
-				list.add(spt);
+					// get string tags
+					String[] tags = items.get(4).trim().split(" ");
+					Itemset its = new Itemset(Arrays.asList(tags));
+					spt.setTags(its);
+					list.add(spt);
+				}
 			}
 
 			// continue with other line
 			while ((line = reader.readLine()) != null) {
 				items = Arrays.asList(line.split("\\s*,\\s*"));
 				if (items.size() != 5) {
-					return list;
+					continue;
 				}
 				StaypointTag spt = new StaypointTag();
 				spt.setId(getID(items.get(0)));

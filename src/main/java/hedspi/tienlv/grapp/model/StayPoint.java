@@ -30,7 +30,6 @@ public class Staypoint extends GPSPoint {
 		}
 		this.latlng.setLat(DoubleHelper.round(lat / arr.size(), 5));
 		this.latlng.setLng(DoubleHelper.round(lng / arr.size(), 5));
-		setTime(arr.get(0).getTime());
 	}
 
 	public List<GPSPoint> getArr() {
@@ -46,8 +45,6 @@ public class Staypoint extends GPSPoint {
 	}
 
 	public void showPoints() {
-		System.out.println("sp size:" + arr.size());
-
 		for (GPSPoint p : arr) {
 			System.out.println("(" + p.getLatlng().getLat() + ", " + p.getLatlng().getLng() + ", " + p.getTime() + ")");
 		}

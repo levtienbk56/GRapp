@@ -70,7 +70,7 @@ function initMap() {
 			var marker2 = new google.maps.Marker({
 				map : map,
 				position : myLatLng,
-				title : point.time,
+				title : sp.id + "(" + sp.time + ")",
 				icon : {
 					path : google.maps.SymbolPath.CIRCLE,
 					scale : 3,

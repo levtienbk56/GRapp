@@ -21,7 +21,6 @@ import hedspi.tienlv.grapp.utils.file.MyFile;
 public class SPMService {
 	public static final Logger logger = LogManager.getLogger(SPMService.class);
 
-	// TODO: processSPM
 	public List<SequentialPattern> processSPM(List<Sequence> sequences) {
 		return null;
 	}

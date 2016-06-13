@@ -160,7 +160,6 @@ function requestGeotag() {
 	});
 }
 
-// TODO: sequence table
 function requestSequences() {
 	$.ajax({
 		type : "POST",

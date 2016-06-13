@@ -89,7 +89,7 @@ public class Controller {
 				CookieHelper cookieHelper = new CookieHelper(request, response);
 				cookieHelper.addCookie("user_id", userID);
 
-				// save file to uplaod folder
+				// save file to upload folder
 				BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(mFile));
 				FileCopyUtils.copy(file.getInputStream(), stream);
 				stream.close();
@@ -123,19 +123,22 @@ public class Controller {
 
 		/*** folder upload ***/
 		String uploadRootPath = request.getServletContext().getRealPath("upload");
+		logger.debug(uploadRootPath);
 		// file staypoint
 		File spFile = new File(uploadRootPath + "/staypoint/" + cookie.getValue() + ".txt");
+		File nearFile = new File(uploadRootPath + "/staypoint/nearpoint/" + cookie.getValue() + ".txt");
 		/***
 		 * if exist, read file and return client. else, calcute staypoint, then
 		 * write to file
 		 **/
-		if (!spFile.exists()) {
+		if (!spFile.exists() || !nearFile.exists()) {
 			return staypoints;
 		}
 
 		try {
 			/*** read file and load staypoint data ***/
 			staypoints = spService.extractFromFile(spFile);
+			spService.extractNearPointFromFile(staypoints, nearFile);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -155,6 +158,7 @@ public class Controller {
 
 		/*** check if exist, just load data from file then return to client ***/
 		String uploadRootPath = request.getServletContext().getRealPath("upload");
+		logger.debug(uploadRootPath);
 		File sptFile = new File(uploadRootPath + "/staypointTag/" + cookie.getValue() + ".txt");
 		if (!sptFile.exists()) {
 			return spTags;
@@ -180,6 +184,7 @@ public class Controller {
 		}
 
 		String uploadRootPath = request.getServletContext().getRealPath("upload");
+		logger.debug(uploadRootPath);
 		// folder sequence
 		File sqFile = new File(uploadRootPath + "/sequence/" + cookie.getValue() + ".txt");
 		if (!sqFile.exists()) {
@@ -207,9 +212,11 @@ public class Controller {
 		}
 
 		String uploadRootPath = request.getServletContext().getRealPath("upload");
+		logger.debug(uploadRootPath);
 		// folder sequence pattern
 		File pFile = new File(uploadRootPath + "/pattern/" + cookie.getValue() + ".txt");
-		logger.debug("patternFile", pFile.getAbsolutePath());
+		logger.debug(pFile.getPath());
+		logger.debug(pFile.getAbsolutePath());
 		if (!pFile.exists()) {
 			return patterns;
 		}
